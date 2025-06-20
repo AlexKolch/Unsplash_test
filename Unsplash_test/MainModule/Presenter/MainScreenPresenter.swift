@@ -18,7 +18,7 @@ final class MainScreenPresenter: MainScreenPresenterProtocol {
     private let networkService: NetworkServiceProtocol
     var posts: [PostData]?
     
-    init(view: MainScreenViewProtocol, networkService: NetworkServiceProtocol) {
+    init(view: MainScreenViewProtocol, networkService: NetworkServiceProtocol = NetworkService()) {
         self.view = view
         self.networkService = networkService
         getPosts()
