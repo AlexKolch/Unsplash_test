@@ -9,33 +9,45 @@ import UIKit
 
 protocol MainScreenViewProtocol: AnyObject {
     func showPost()
+    func showAlert(messageError: String)
 }
 
 class MainScreenView: UIViewController {
     
     var presenter: MainScreenPresenterProtocol!
     
-    private lazy var collectionView: UICollectionView = {
+    private lazy var postsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
+        layout.itemSize = CGSize(width: view.frame.width - 60, height: view.frame.width - 90)
+        layout.minimumLineSpacing = 8
+        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        
         let collection = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
-        collection.backgroundColor = .systemBackground
         collection.dataSource = self
         collection.delegate = self
-        collection.register(MainPostCell.self, forCellWithReuseIdentifier: MainPostCell.reuseId)
-        collection.alwaysBounceVertical = true
-        collection.contentInset.top = 80
+        collection.backgroundColor = .myBackground
+
+        let nib = UINib(nibName: "PostCVCell", bundle: nil)
+        collection.register(nib, forCellWithReuseIdentifier: PostCVCell.reuseId)
         collection.contentInsetAdjustmentBehavior = .scrollableAxes
-        
-        layout.itemSize = CGSize(width: view.frame.width - 60, height: view.frame.width - 60)
-        layout.minimumLineSpacing = 30
-        layout.sectionInset = UIEdgeInsets(top: 15, left: 0, bottom: 40, right: 0)
-        
+
         return collection
     }()
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubview(collectionView)
+        view.addSubview(postsCollectionView)
+    }
+    
+    
+    func showAlert(messageError: String) {
+        let alert = UIAlertController(title: messageError, message: "Please, repeat later again", preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel) { [weak self] _ in
+            self?.presenter.getPosts()
+        }
+        alert.addAction(action)
+        self.present(alert, animated: true)
     }
 
 
@@ -43,25 +55,25 @@ class MainScreenView: UIViewController {
 
 extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        presenter.posts?.count ?? 3
+        presenter.posts?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainPostCell.reuseId, for: indexPath) as? MainPostCell else { return UICollectionViewCell() }
-        
-        
-        
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCVCell.reuseId, for: indexPath) as? PostCVCell else { return UICollectionViewCell() }
+
+        if let post = presenter.posts?[indexPath.item] {
+            cell.configureCell(item: post)
+        }
+
         return cell
     }
-    
-    
 }
 
 extension MainScreenView: MainScreenViewProtocol {
    
     func showPost() {
-        collectionView.reloadData()
+        postsCollectionView.reloadData()
     }
-    
+
 }
 

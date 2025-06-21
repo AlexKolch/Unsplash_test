@@ -9,14 +9,16 @@ import Foundation
 
 protocol MainScreenPresenterProtocol: AnyObject {
     init(view: MainScreenViewProtocol, networkService: NetworkServiceProtocol)
-    var posts: [PostData]? {get set}
+    var posts: [PostData]? {get}
     func getPosts()
 }
 
 final class MainScreenPresenter: MainScreenPresenterProtocol {
+    
     weak var view: MainScreenViewProtocol?
     private let networkService: NetworkServiceProtocol
-    var posts: [PostData]?
+    private(set) var posts: [PostData]?
+    
     
     init(view: MainScreenViewProtocol, networkService: NetworkServiceProtocol = NetworkService()) {
         self.view = view
@@ -25,6 +27,20 @@ final class MainScreenPresenter: MainScreenPresenterProtocol {
     }
     
     func getPosts() {
-        //
+        networkService.getPosts { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let decodedPosts):
+                self.posts = decodedPosts
+                DispatchQueue.main.async {
+                    self.view?.showPost()
+                }
+            case .failure(let error):
+                print("Failure: \(error)")
+                DispatchQueue.main.async {
+                    self.view?.showAlert(messageError: error.localizedDescription)
+                }
+            }
+        }
     }
 }
