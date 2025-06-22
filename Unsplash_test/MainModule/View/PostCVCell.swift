@@ -7,7 +7,7 @@
 
 import UIKit
 
-class PostCVCell: UICollectionViewCell {
+final class PostCVCell: UICollectionViewCell {
     static let reuseId = "PostCVCell"
     @IBOutlet weak var imagePost: WebImageManager! 
     @IBOutlet weak var likesLabel: UILabel!
@@ -27,8 +27,8 @@ class PostCVCell: UICollectionViewCell {
     
     func configureCell(item: PostData) {
         spinner.startAnimating()
-        imagePost.set(imageUrl: item.urls.thumb) { [weak self] in
-            self?.spinner.stopAnimating()
+        imagePost.set(imageUrl: item.urls.thumb) {
+            self.spinner.stopAnimating()
         }
         
         likesLabel.text = "Like: \(item.likes)"

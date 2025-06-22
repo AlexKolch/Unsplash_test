@@ -9,6 +9,7 @@ import UIKit
 
 protocol Builder {
     static func createMainScreen() -> UIViewController
+    static func createDetailsScreen(post: PostData) -> UIViewController
 }
 
 final class ModelBuilder: Builder {
@@ -17,5 +18,12 @@ final class ModelBuilder: Builder {
         let presenter = MainScreenPresenter(view: view)
         view.presenter = presenter
         return view
+    }
+    
+    static func createDetailsScreen(post: PostData) -> UIViewController {
+        let detailsView = DetailsView()
+        let detailsPresenter = DetailsPresenter(view: detailsView, post: post)
+        detailsView.presenter = detailsPresenter
+        return detailsView
     }
 }

@@ -15,7 +15,7 @@ protocol MainScreenPresenterProtocol: AnyObject {
 
 final class MainScreenPresenter: MainScreenPresenterProtocol {
     
-    weak var view: MainScreenViewProtocol?
+    private weak var view: MainScreenViewProtocol?
     private let networkService: NetworkServiceProtocol
     private(set) var posts: [PostData]?
     

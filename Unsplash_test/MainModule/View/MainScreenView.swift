@@ -12,7 +12,7 @@ protocol MainScreenViewProtocol: AnyObject {
     func showAlert(messageError: String)
 }
 
-class MainScreenView: UIViewController {
+final class MainScreenView: UIViewController {
     
     var presenter: MainScreenPresenterProtocol!
     
@@ -25,7 +25,7 @@ class MainScreenView: UIViewController {
         let collection = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
         collection.dataSource = self
         collection.delegate = self
-        collection.backgroundColor = .myBackground
+        collection.backgroundColor = .white
 
         let nib = UINib(nibName: "PostCVCell", bundle: nil)
         collection.register(nib, forCellWithReuseIdentifier: PostCVCell.reuseId)
@@ -33,23 +33,13 @@ class MainScreenView: UIViewController {
 
         return collection
     }()
-    
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.title = "Unsplash posts"
         view.addSubview(postsCollectionView)
     }
-    
-    
-    func showAlert(messageError: String) {
-        let alert = UIAlertController(title: messageError, message: "Please, repeat later again", preferredStyle: .alert)
-        let action = UIAlertAction(title: "OK", style: .cancel) { [weak self] _ in
-            self?.presenter.getPosts()
-        }
-        alert.addAction(action)
-        self.present(alert, animated: true)
-    }
-
 
 }
 
@@ -67,12 +57,27 @@ extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegate {
 
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let post = presenter.posts?[indexPath.item] else { return }
+        let detailsVC = ModelBuilder.createDetailsScreen(post: post)
+        navigationController?.pushViewController(detailsVC, animated: true)
+    }
 }
 
 extension MainScreenView: MainScreenViewProtocol {
    
     func showPost() {
         postsCollectionView.reloadData()
+    }
+    
+    func showAlert(messageError: String) {
+        let alert = UIAlertController(title: messageError, message: "Please, repeat later again", preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel) { [weak self] _ in
+            self?.presenter.getPosts()
+        }
+        alert.addAction(action)
+        self.present(alert, animated: true)
     }
 
 }

@@ -13,16 +13,19 @@ struct PostData: Decodable {
     let color: String
     let likes: Int
     let urls: Urls
+    let user: User
     
     // MARK: - Urls
     struct Urls: Decodable {
-        let thumb: String
+        let thumb, regular: String
+    }
+    
+    struct User: Decodable {
+        let username: String
     }
     
     enum CodingKeys: String, CodingKey {
-        case description
         case altDescription = "alt_description"
-        case color
-        case likes, urls
+        case description, color, likes, urls, user
     }
 }
