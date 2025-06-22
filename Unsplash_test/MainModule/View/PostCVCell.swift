@@ -34,6 +34,5 @@ final class PostCVCell: UICollectionViewCell {
         likesLabel.text = "Like: \(item.likes)"
         descriptionLabel.text = item.description ?? item.altDescription ?? ""
         descriptionLabel.textColor = UIColor(item.color)
-       
     }
 }

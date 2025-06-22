@@ -13,20 +13,17 @@ protocol MainScreenViewProtocol: AnyObject {
 }
 
 final class MainScreenView: UIViewController {
-    
+    private var layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     var presenter: MainScreenPresenterProtocol!
-    
+    let deviceSize: CGSize = UIScreen.main.bounds.size
     private lazy var postsCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: view.frame.width - 60, height: view.frame.width - 90)
-        layout.minimumLineSpacing = 8
-        layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+//        let layout = UICollectionViewFlowLayout()
         
         let collection = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
         collection.dataSource = self
         collection.delegate = self
         collection.backgroundColor = .white
-
+        collection.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         let nib = UINib(nibName: "PostCVCell", bundle: nil)
         collection.register(nib, forCellWithReuseIdentifier: PostCVCell.reuseId)
         collection.contentInsetAdjustmentBehavior = .scrollableAxes
@@ -40,10 +37,17 @@ final class MainScreenView: UIViewController {
         navigationItem.title = "Unsplash posts"
         view.addSubview(postsCollectionView)
     }
-
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate(alongsideTransition: { [weak self] _ in
+            self?.layout.invalidateLayout()
+        }, completion: nil)
+    }
 }
 
-extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegate {
+extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         presenter.posts?.count ?? 0
     }
@@ -62,6 +66,26 @@ extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegate {
         guard let post = presenter.posts?[indexPath.item] else { return }
         let detailsVC = ModelBuilder.createDetailsScreen(post: post)
         navigationController?.pushViewController(detailsVC, animated: true)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+//        CGSize(width: view.frame.width - 60, height: view.frame.width - 90)
+        let isPortrait = UIDevice.current.orientation.isPortrait
+        if isPortrait {
+//            return CGSize(width: view.frame.width - 60, height: view.frame.height / 3)
+           return CGSize(width: view.frame.width - 60, height: deviceSize.height * 0.3)
+        } else {
+//            return CGSize(width: view.frame.width - 60, height: view.frame.width / 3)
+            return CGSize(width: view.frame.width - 60, height: deviceSize.height * 0.35)
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        16.0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
 }
 

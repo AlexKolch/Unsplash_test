@@ -18,7 +18,6 @@ final class NetworkService: NetworkServiceProtocol {
     
     enum NetworkError: Error {
         case invalidURL
-        case badResponse
     }
     
     func getPosts(completion: @escaping (Result<[PostData], Error>) -> Void) {
