@@ -15,7 +15,8 @@ protocol MainScreenViewProtocol: AnyObject {
 final class MainScreenView: UIViewController {
     private var layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     var presenter: MainScreenPresenterProtocol!
-
+    var isPortrait = true
+    
     private lazy var postsCollectionView: UICollectionView = {
         let collection = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
         collection.dataSource = self
@@ -44,6 +45,13 @@ final class MainScreenView: UIViewController {
         }, completion: nil)
     }
     
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        if let windowScene = view.window?.windowScene {
+            let interfaceOrientation = windowScene.interfaceOrientation
+            isPortrait = interfaceOrientation.isPortrait
+        }
+    }
 }
 
 extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -68,7 +76,6 @@ extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegateFl
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let isPortrait = UIDevice.current.orientation.isPortrait
         let collectionViewWidth = collectionView.frame.width
         // Отступы и промежутки
         let sectionInsets = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
