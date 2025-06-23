@@ -15,10 +15,8 @@ protocol MainScreenViewProtocol: AnyObject {
 final class MainScreenView: UIViewController {
     private var layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     var presenter: MainScreenPresenterProtocol!
-    let deviceSize: CGSize = UIScreen.main.bounds.size
+
     private lazy var postsCollectionView: UICollectionView = {
-//        let layout = UICollectionViewFlowLayout()
-        
         let collection = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
         collection.dataSource = self
         collection.delegate = self
@@ -40,11 +38,12 @@ final class MainScreenView: UIViewController {
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        
+     
         coordinator.animate(alongsideTransition: { [weak self] _ in
             self?.layout.invalidateLayout()
         }, completion: nil)
     }
+    
 }
 
 extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -69,15 +68,24 @@ extension MainScreenView: UICollectionViewDataSource, UICollectionViewDelegateFl
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-//        CGSize(width: view.frame.width - 60, height: view.frame.width - 90)
         let isPortrait = UIDevice.current.orientation.isPortrait
-        if isPortrait {
-//            return CGSize(width: view.frame.width - 60, height: view.frame.height / 3)
-           return CGSize(width: view.frame.width - 60, height: deviceSize.height * 0.3)
-        } else {
-//            return CGSize(width: view.frame.width - 60, height: view.frame.width / 3)
-            return CGSize(width: view.frame.width - 60, height: deviceSize.height * 0.35)
-        }
+        let collectionViewWidth = collectionView.frame.width
+        // Отступы и промежутки
+        let sectionInsets = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        let minimumInteritemSpacing: CGFloat = 16
+        let itemsPerRow: CGFloat = isPortrait ? 1 : 2
+        
+        // Рассчитываем доступную ширину
+        let paddingSpace = sectionInsets.left + sectionInsets.right +
+        minimumInteritemSpacing * (itemsPerRow - 1)
+        let availableWidth = collectionViewWidth - paddingSpace
+        let widthPerItem = availableWidth / itemsPerRow
+        
+        // Соотношение сторон (ширина:высота)
+        let heightRatio: CGFloat = isPortrait ? 0.8 : 0.7
+        let heightPerItem = widthPerItem * heightRatio
+        
+        return CGSize(width: widthPerItem, height: heightPerItem)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -103,6 +111,5 @@ extension MainScreenView: MainScreenViewProtocol {
         alert.addAction(action)
         self.present(alert, animated: true)
     }
-
 }
 

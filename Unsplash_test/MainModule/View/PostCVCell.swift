@@ -20,10 +20,10 @@ final class PostCVCell: UICollectionViewCell {
     }
     
     private func setupViews() {
-         layer.cornerRadius = 10
-         layer.masksToBounds = true
+        layer.cornerRadius = 10
+        layer.masksToBounds = true
         imagePost.contentMode = .scaleAspectFill
-     }
+    }
     
     func configureCell(item: PostData) {
         spinner.startAnimating()
